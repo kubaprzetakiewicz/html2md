@@ -1,4 +1,5 @@
 import 'package:html2md/html2md.dart' as html2md;
+import 'package:html2md/src/rules.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -11,6 +12,7 @@ void main() {
     late String ignoreHtml;
     late String codeblockHtml;
     late String linkWithTitleHtml;
+    late String customRuleHtml;
 
     setUp(() {
       ignoreHtml =
@@ -51,6 +53,7 @@ void main() {
       codeblockHtml = '''<pre><code>print('Hello, world');</code></pre>''';
       linkWithTitleHtml =
           '<a href="https://example.com" title="Example title">Example content</a>';
+      customRuleHtml = '<p>Text with a <sub>subscript</sub>.</p>';
     });
 
     test('Basic Test', () {
@@ -144,6 +147,19 @@ print('Hello, world');
         '''[Example content][1]
 
 [1]: https://example.com "Example title"''',
+      );
+    });
+
+    test('Custom rule Test', () {
+      expect(
+        html2md.convert(customRuleHtml, customRules: [
+          Rule(
+            'subscriptRule',
+            filters: ['sub'],
+            replacement: (content, node) => '___${content}___',
+          ),
+        ]),
+        'Text with a ___subscript___.',
       );
     });
   });

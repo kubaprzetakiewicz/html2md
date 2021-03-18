@@ -7,6 +7,7 @@ import 'utils.dart' as util;
 
 final Set<Rule> _appendRuleSet = <Rule>{};
 final Map<String, String> _customOptions = <String, String>{};
+final List<Rule> _customRules = [];
 
 final _leadingNewLinesRegExp = RegExp(r'^\n*');
 final _trailingNewLinesRegExp = RegExp(r'\n*$');
@@ -33,16 +34,22 @@ final _trailingNewLinesRegExp = RegExp(r'\n*$');
 ///
 /// Elements list in [ignore] would be ingored.
 ///
-String convert(String html,
-    {String? rootTag,
-    String? imageBaseUrl,
-    Map<String, String>? styleOptions,
-    List<String>? ignore}) {
+String convert(
+  String html, {
+  String? rootTag,
+  String? imageBaseUrl,
+  Map<String, String>? styleOptions,
+  List<String>? ignore,
+  List<Rule>? customRules,
+}) {
   if (html.isEmpty) {
     return '';
   }
   if (imageBaseUrl != null && imageBaseUrl.isNotEmpty) {
     _customOptions['imageBaseUrl'] = imageBaseUrl;
+  }
+  if (customRules != null && customRules.isNotEmpty) {
+    _customRules.addAll(customRules);
   }
   updateStyleOptions(styleOptions);
   if (ignore != null && ignore.isNotEmpty) {
@@ -156,7 +163,7 @@ String _process(Node inNode) {
 }
 
 String _replacementForNode(Node node) {
-  var rule = Rule.findRule(node);
+  var rule = Rule.findRule(node, _customRules);
   if (rule.append != null) {
     _appendRuleSet.add(rule);
   }
